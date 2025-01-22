@@ -1,0 +1,9 @@
+.env.development.local
+.env.development
+.env.production.local
+.env.production
+.env
+
+.idea
+
+fcm-credential.json

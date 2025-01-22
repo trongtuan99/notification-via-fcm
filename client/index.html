@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Popup Notification</title>
+  </head>
+  <body>
+    <h1>Firebase Messaging</h1>
+    <button onclick="requestToken()">Lấy Token</button>
+    <p id="output"></p>
+    <ul id="notification-list"></ul>
+
+    <style>
+      ul {
+        list-style-type: none;
+        padding: 0;
+      }
+
+      li {
+        background-color: #f8f8f8;
+        padding: 10px;
+        margin: 5px 0;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+    </style>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
+      import {
+        getMessaging,
+        getToken,
+        onMessage,
+      } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-messaging.js";
+
+      const firebaseConfig = {
+        apiKey: API_KEY,
+        authDomain: AUTH_DOMAIN,
+        projectId: PROJECT_ID,
+        storageBucket: STORAGE_BUCKET,
+        messagingSenderId: SENDER_ID,
+        appId: APP_ID,
+        measurementId: MEASEUREMENT_ID,
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const messaging = getMessaging(app);
+
+      // Đăng ký Service Worker
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker
+          .register("/firebase-messaging-sw.js")
+          .then((registration) => {
+            console.log("Service Worker đã đăng ký thành công:", registration);
+          })
+          .catch((error) => {
+            console.error("Service Worker đăng ký thất bại:", error);
+          });
+      }
+
+      // Lấy Token FCM
+      window.requestToken = async function () {
+        try {
+          const permission = await Notification.requestPermission();
+          if (permission !== "granted") {
+            document.getElementById("output").innerText = "Quyền bị từ chối.";
+            return;
+          }
+
+          const token = await getToken(messaging, {
+            vapidKey: "YOUR_PUBLIC_VAPID_KEY",
+          });
+
+          if (token) {
+            document.getElementById("output").innerText = `FCM Token: ${token}`;
+          } else {
+            document.getElementById("output").innerText =
+              "Không thể lấy token.";
+          }
+        } catch (error) {
+          console.error("Lỗi:", error);
+          document.getElementById("output").innerText = `Lỗi: ${error.message}`;
+        }
+      };
+
+      onMessage(messaging, (payload) => {
+        console.log("Message received: ", payload);
+        const notificationList = document.getElementById("notification-list");
+        const listItem = document.createElement("li");
+        listItem.innerText = `Title: ${payload.notification.title}, Body: ${payload.notification.body}`;
+        notificationList.appendChild(listItem);
+      });
+    </script>
+  </body>
+</html>
