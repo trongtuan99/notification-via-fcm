@@ -1,9 +1,23 @@
-# Usage:
+# Gửi thông báo đến một topic
 
-# noti = Notification.new(topic: "topic_demo", tokens: ['token_from_client_devices'])
+notification = Notification.new(topic: "news")
+notification.send_to_topic
 
-# noti.send_all_devices => send to devices by single req to fcm
+# Gửi thông báo đến một thiết bị cụ thể
 
-# noti.subscribe => subscribe to init topic_name
+notification = Notification.new(tokens: ["device_token_1"])
+notification.send_to_device("device_token_1")
 
-# noti.send_to_topic
+# Gửi thông báo đến nhiều thiết bị
+
+notification = Notification.new(tokens: ["device_token_1", "device_token_2"])
+notification.send_to_devices
+
+# Đăng ký nhiều thiết bị vào một topic
+
+notification = Notification.new(topic: "news", tokens: ["device_token_1", "device_token_2"])
+notification.subscribe
+
+# Hủy đăng ký nhiều thiết bị khỏi một topic
+
+notification.unsubscribe
